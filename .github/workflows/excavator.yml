@@ -1,0 +1,30 @@
+name: Excavator
+
+# Auto-updates the manifests in this bucket. On a schedule it runs Scoop's
+# checkver/autoupdate against each manifest — for iconsmaker.json that means
+# checking https://github.com/ideocentric/iconsmaker releases, and when a newer
+# version exists, regenerating the download URLs and recomputing the sha256s,
+# then committing the bump. Commits go to this repo, so the default GITHUB_TOKEN
+# is enough (no PAT/secret needed).
+
+on:
+  schedule:
+    - cron: "0 6 * * *"   # daily at 06:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: excavator
+
+jobs:
+  excavate:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Excavate
+        uses: ScoopInstaller/GithubActions@main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SKIP_UPDATED: "1"
